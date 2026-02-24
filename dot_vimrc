@@ -1,46 +1,36 @@
-"dein Scripts-----------------------------
+" Plugin setup (vim-plug)------------------
 if &compatible
   set nocompatible               " Be iMproved
 endif
 
-" Required:
-let s:dein_repo_dir = $HOME.'/.config/nvim/repos/github.com/Shougo/dein.vim'
-execute 'set runtimepath+='.s:dein_repo_dir
-
-" Required:
-if dein#load_state($HOME.'/.config/nvim/')
-  call dein#begin($HOME.'/.config/nvim/')
-
-  " Let dein manage dein
-  " Required:
-  call dein#add($HOME.'/.config/nvim/repos/github.com/Shougo/dein.vim')
-
-  " Add or remove your plugins here:
-  let s:toml = '~/.config/misc/plugins.toml'
-  call dein#load_toml(s:toml, {'lazy': 0})
-  call dein#add('zchee/deoplete-go', {'build': 'make'})
-
-  " You can specify revision/branch/tag.
-  call dein#add('Shougo/deol.nvim', { 'rev': 'a1b5108fd' })
-
-  " Required:
-  call dein#end()
-  call dein#save_state()
+let s:plug_vim = expand('~/.vim/autoload/plug.vim')
+if empty(glob(s:plug_vim))
+  silent execute '!curl -fLo ' . shellescape(s:plug_vim) . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-" Required:
-filetype plugin indent on
-syntax enable
-
-" If you want to install not installed plugins on startup.
-if dein#check_install()
-  call dein#install()
+if filereadable(s:plug_vim)
+  execute 'source ' . fnameescape(s:plug_vim)
 endif
 
-"End dein Scripts-------------------------
+if exists('*plug#begin')
+  call plug#begin('~/.vim/plugged')
+  Plug 'scrooloose/nerdtree'
+  Plug 'tomasr/molokai'
+  Plug 'flazz/vim-colorschemes'
+  call plug#end()
+endif
+
+map <C-n> :NERDTreeToggle<CR>
+let g:molokai_original = 1
+let g:rehash256 = 1
+silent! colorscheme molokai
+
+" End plugin setup-------------------------
 
 
 " Basic settings--------------------------
+filetype plugin indent on
 syntax on
 set autoindent
 set smartindent
