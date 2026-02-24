@@ -18,3 +18,12 @@ if command -v brew >/dev/null 2>&1 && [[ -f "$HOME/.Brewfile" ]]; then
   echo "[i] Installing Homebrew packages from Brewfile"
   brew bundle --file "$HOME/.Brewfile"
 fi
+
+if [[ ! -d "$HOME/.enhancd" ]]; then
+  if command -v git >/dev/null 2>&1; then
+    echo "[i] Installing enhancd"
+    git clone https://github.com/b4b4r07/enhancd "$HOME/.enhancd"
+  else
+    echo "[i] git is not installed; skipping enhancd install"
+  fi
+fi
