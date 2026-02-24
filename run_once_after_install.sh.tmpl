@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+if command -v mise >/dev/null 2>&1; then
+  echo "[i] Installing tools from mise config"
+  mise install
+else
+  echo "[i] mise is not installed; skipping mise install"
+fi
+
+if command -v brew >/dev/null 2>&1 && [[ -f "$HOME/.Brewfile" ]]; then
+  echo "[i] Installing Homebrew packages from Brewfile"
+  brew bundle --file "$HOME/.Brewfile"
+fi

@@ -1,0 +1,9 @@
+# Current target is macOS. Keep macOS-specific files out on other OSes.
+{{- if ne .chezmoi.os "darwin" }}
+dot_Brewfile
+run_once_before_install.sh.tmpl
+run_once_after_install.sh.tmpl
+{{- end }}
+
+# Ubuntu-specific files can be introduced later, for example:
+# dot_bashrc_ubuntu
