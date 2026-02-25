@@ -1,5 +1,5 @@
 [tools]
 node = "lts"
 python = "3"
-go = "1.26"
+go = "1"
 terraform = "1.14"
