@@ -1,6 +1,69 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+run_step() {
+  local description="$1"
+  shift
+
+  if "$@"; then
+    echo "[i] ${description}"
+  else
+    echo "[!] ${description} failed; continuing"
+  fi
+}
+
+apply_macos_settings() {
+  # Native remap for current session: Caps Lock -> Left Control.
+  run_step "Remapped Caps Lock to Control (native)" \
+    /usr/bin/hidutil property --set \
+      '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x7000000E0}]}'
+
+  # Fallback for persistence via Karabiner, only if config is present.
+  if command -v jq >/dev/null 2>&1; then
+    local karabiner_dir="$HOME/.config/karabiner"
+    local karabiner_json="$karabiner_dir/karabiner.json"
+    if [[ -f "$karabiner_json" ]]; then
+      local tmp_json
+      tmp_json="$(mktemp)"
+      if jq '
+        if ((.profiles // []) | length) == 0 then
+          .profiles = [{"name":"Default profile","selected":true,"simple_modifications":[]}]
+        else
+          .
+        end
+        | if ([.profiles[] | select(.selected == true)] | length) == 0 then
+            .profiles[0].selected = true
+          else
+            .
+          end
+        | (.profiles[] | select(.selected == true) | .simple_modifications) |= (
+            ((. // []) + [{"from":{"key_code":"caps_lock"},"to":[{"key_code":"left_control"}]}])
+            | unique_by(.from.key_code, (.to[0].key_code // ""))
+          )
+      ' "$karabiner_json" >"$tmp_json"; then
+        run_step "Updated Karabiner fallback mapping for Caps Lock" mv "$tmp_json" "$karabiner_json"
+      else
+        rm -f "$tmp_json"
+        echo "[!] Karabiner fallback mapping failed; continuing"
+      fi
+    fi
+  fi
+
+  run_step "Enabled three-finger drag (internal trackpad)" \
+    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+  run_step "Enabled three-finger drag (bluetooth trackpad)" \
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool true
+
+  run_step "Set Key Repeat to fastest" defaults write -g KeyRepeat -int 2
+  run_step "Set Delay Until Repeat to shortest" defaults write -g InitialKeyRepeat -int 15
+
+  run_step "Enabled Dock auto-hide" defaults write com.apple.dock autohide -bool true
+  run_step "Set Dock position to left" defaults write com.apple.dock orientation -string left
+
+  run_step "Reloaded Dock" killall Dock
+  run_step "Reloaded SystemUIServer" killall SystemUIServer
+}
+
 if [[ -x /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -x /usr/local/bin/brew ]]; then
@@ -26,4 +89,11 @@ if [[ ! -d "$HOME/.enhancd" ]]; then
   else
     echo "[i] git is not installed; skipping enhancd install"
   fi
+fi
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  echo "[i] Applying macOS system settings"
+  apply_macos_settings
+else
+  echo "[i] Non-macOS environment detected; skipping macOS system settings"
 fi
