@@ -70,9 +70,8 @@ git push
 
 ### Tool management with mise
 
-Runtime/tool versions are defined in:
-
-- `dot_config/mise/config.toml`
+- Runtime/tool versions are defined in: `dot_config/mise/config.toml`
+- Tools installed via brew are defined in: `dot_Brewfile`.
 
 After updates, run:
 
