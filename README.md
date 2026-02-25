@@ -1,6 +1,6 @@
 # dotfiles
 
-Dotfiles managed by [chezmoi](https://www.chezmoi.io/) with tooling managed by [mise](https://mise.jdx.dev/).
+Dotfiles managed by [chezmoi](https://www.chezmoi.io/).
 
 ## Supported OS
 
@@ -70,7 +70,7 @@ git push
 
 ### Tool management
 
-Runtime/tool versions are defined in: `dot_config/mise/config.toml`
+Runtime versions are defined in: `dot_config/mise/config.toml`.
 
 After updates, run:
 
