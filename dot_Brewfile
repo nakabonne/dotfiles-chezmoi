@@ -1,5 +1,6 @@
 brew "jq"
 brew "htop"
+brew "tmux"
 brew "neovim"
 brew "fzf"
 brew "starship"
