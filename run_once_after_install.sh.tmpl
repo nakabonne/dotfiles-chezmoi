@@ -79,7 +79,7 @@ fi
 
 if command -v brew >/dev/null 2>&1 && [[ -f "$HOME/.Brewfile" ]]; then
   echo "[i] Installing Homebrew packages from Brewfile"
-  brew bundle --file "$HOME/.Brewfile"
+  brew bundle -v --file "$HOME/.Brewfile"
 fi
 
 if [[ ! -d "$HOME/.enhancd" ]]; then

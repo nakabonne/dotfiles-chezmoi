@@ -10,6 +10,7 @@ Dotfiles managed by [chezmoi](https://www.chezmoi.io/).
 ## Prerequisites
 
 ```
+brew update
 brew install chezmoi
 ```
 
@@ -79,6 +80,8 @@ mise install
 ```
 
 Tools installed via brew are defined in: `dot_Brewfile`.
+
+After updates, run:
 
 ```bash
 brew bundle --file "$HOME/.Brewfile"
