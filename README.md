@@ -7,7 +7,17 @@ Dotfiles managed by [chezmoi](https://www.chezmoi.io/) with tooling managed by [
 - macOS
 - Ubuntu (planned)
 
+## Installation
+
+You can clone this repo to wherever you want.
+
+```bash
+git clone https://github.com/nakabonne/dotfiles-chezmoi.git
+```
+
 ## Bootstrap
+
+All dependencies you need (including chezmoi and mise) will be automatically installed.
 
 ```bash
 ./init/setup.sh
