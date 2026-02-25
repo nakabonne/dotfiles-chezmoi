@@ -21,10 +21,6 @@ export PATH=/usr/local/opt/openssl/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/opt/openssl/lib:$LD_LIBRARY_PATH
 export CPATH=/usr/local/opt/openssl/include:$LD_LIBRARY_PATH
 
-# GCP
-export PATH=$HOME/google-cloud-sdk/bin:$PATH
-export CLOUDSDK_PYTHON=$(which python2)
-
 # save place for brew cask
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
@@ -46,15 +42,10 @@ if [ $ITERM_SESSION_ID ]; then
   addToPromptCommand 'echo -ne "\033];${PWD##*/}\007"'
 fi
 
-# Pbgopy
-export PBGOPY_SERVER="http://localhost:9090"
-
 # for bash_completion
 [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate bash)"
