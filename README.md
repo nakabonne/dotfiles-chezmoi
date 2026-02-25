@@ -17,19 +17,24 @@ git clone https://github.com/nakabonne/dotfiles-chezmoi.git
 
 ## Bootstrap
 
-All dependencies you need (including chezmoi and mise) will be automatically installed.
-
-```bash
-./init/setup.sh
+```
+brew install chezmoi
 ```
 
-The setup script installs `chezmoi` if needed, initializes this repository as the chezmoi source directory, and applies the managed files.
+```
+cd ~
+chezmoi init https://github.com/nakabonne/dotfiles-chezmoi.git
+```
+
+```
+chezmoi apply -v
+```
 
 ## How this repository works
 
 - This repository is the chezmoi source directory.
 - Files prefixed with `dot_` map to files in `$HOME`.
-- `run_once_before_install.sh.tmpl` bootstraps package managers (`brew`, `mise`).
+- `run_once_before_bootstrap.sh.tmpl` bootstraps package managers (`brew`, `mise`).
 - `run_once_after_install.sh.tmpl` installs configured tools via `mise install` and runs `brew bundle` when a `Brewfile` exists.
 
 Useful commands:
