@@ -68,13 +68,18 @@ git commit -m "Update dotfiles"
 git push
 ```
 
-### Tool management with mise
+### Tool management
 
-- Runtime/tool versions are defined in: `dot_config/mise/config.toml`
-- Tools installed via brew are defined in: `dot_Brewfile`.
+Runtime/tool versions are defined in: `dot_config/mise/config.toml`
 
 After updates, run:
 
 ```bash
 mise install
+```
+
+Tools installed via brew are defined in: `dot_Brewfile`.
+
+```bash
+brew bundle --file "$HOME/.Brewfile"
 ```
