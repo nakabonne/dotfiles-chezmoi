@@ -7,19 +7,13 @@ Dotfiles managed by [chezmoi](https://www.chezmoi.io/) with tooling managed by [
 - macOS
 - Ubuntu (planned)
 
-## Installation
-
-You can clone this repo to wherever you want.
-
-```bash
-git clone https://github.com/nakabonne/dotfiles-chezmoi.git
-```
-
-## Bootstrap
+## Prerequisites
 
 ```
 brew install chezmoi
 ```
+
+## Bootstrap
 
 ```
 cd ~
@@ -34,18 +28,47 @@ chezmoi apply -v
 
 - This repository is the chezmoi source directory.
 - Files prefixed with `dot_` map to files in `$HOME`.
-- `run_once_before_bootstrap.sh.tmpl` bootstraps package managers (`brew`, `mise`).
-- `run_once_after_install.sh.tmpl` installs configured tools via `mise install` and runs `brew bundle` when a `Brewfile` exists.
+- When you run `chezmoi apply`, it runs these:
+  - `run_once_before_bootstrap.sh.tmpl`: bootstraps package managers (`brew`, `mise`).
+  - `run_once_after_install.sh.tmpl`: installs configured tools via `mise install` and runs `brew bundle` when a `Brewfile` exists.
 
-Useful commands:
+### Pull the latest change
+
+On any machine, you can pull and apply the latest changes from your repo with:
 
 ```bash
-chezmoi status
+chezmoi update -v
+```
+
+### Edit dotfiles
+
+Let's say you want to edit .bashrc.
+
+```bash
+chezmoi edit ~/.bashrc
+```
+
+```bash
 chezmoi diff
+```
+
+```bash
 chezmoi apply -v
 ```
 
-## Tool management with mise
+### Push changes
+
+```bash
+chezmoi cd
+```
+
+```bash
+git add -A
+git commit -m "Update dotfiles"
+git push
+```
+
+### Tool management with mise
 
 Runtime/tool versions are defined in:
 
