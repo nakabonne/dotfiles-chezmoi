@@ -37,7 +37,7 @@ fi
 
 if [[ "$CURRENT_SOURCE" != "$REPO_ROOT" ]]; then
   echo "[i] Initializing chezmoi source at $REPO_ROOT"
-  chezmoi init
+  chezmoi init --source "$REPO_ROOT"
 fi
 
 echo "[i] Applying dotfiles from $REPO_ROOT"
