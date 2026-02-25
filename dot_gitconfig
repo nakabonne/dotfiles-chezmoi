@@ -16,9 +16,3 @@
   root = ~/src
 [pull]
 	rebase = false
-# [user]
-#   signingkey = EF558144
-# [gpg]
-#   program = gpg
-# [commit]
-#   gpgsign = true
