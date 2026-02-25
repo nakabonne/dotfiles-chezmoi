@@ -1,5 +1,6 @@
 brew "jq"
 brew "htop"
+brew "neovim"
 brew "fzf"
 brew "starship"
 brew "lazygit"
