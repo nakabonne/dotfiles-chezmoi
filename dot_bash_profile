@@ -52,4 +52,4 @@ if command -v mise >/dev/null 2>&1; then
 fi
 
 # pipx
-export PATH="$PATH:/Users/nakabonne/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
