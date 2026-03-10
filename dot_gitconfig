@@ -16,3 +16,5 @@
   root = ~/src
 [pull]
 	rebase = false
+[url "https://github.com/LayerXcom/"]
+        insteadOf = ssh://git@github.com/LayerXcom/
