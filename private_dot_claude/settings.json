@@ -1,0 +1,73 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Mcp__filesystem",
+      "Mcp__filesystem__*",
+      "mcp__filesystem__*",
+      "Mcp__fetch",
+      "Mpc__fetch__*",
+      "Mcp__web-search",
+      "Mcp__web-search__*",
+      "Mcp__web-search-sse",
+      "Mcp__web-search-sse__*",
+      "Mcp__github",
+      "Mcp__github__*"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(chmod -R 777 *)",
+      "Bash(chown -R *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(fdisk *)",
+      "Bash(parted *)",
+      "Bash(shutdown *)",
+      "Bash(reboot *)",
+      "Bash(init 0)",
+      "Bash(init 6)",
+      "Bash(poweroff *)",
+      "Bash(systemctl poweroff *)",
+      "Bash(systemctl reboot *)",
+      "Bash(curl * | sh)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | sh)",
+      "Bash(wget * | bash)",
+      "Bash(gh pr merge *)",
+      "Bash(docker system prune *)",
+      "Bash(kubectl delete *)",
+      "Bash(terraform destroy *)"
+    ]
+  },
+  "model": "opus[1m]",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Task complete\" with title \"Claude Code\"'"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Waiting for your permission\" with title \"Claude Code\"'"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "gopls-lsp@claude-plugins-official": true
+  },
+  "voiceEnabled": true,
+  "skipDangerousModePermissionPrompt": true
+}
