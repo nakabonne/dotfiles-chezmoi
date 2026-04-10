@@ -1,0 +1,11 @@
+nerdfont: false
+
+panes:
+  - command: claude --dangerously-skip-permissions
+    focus: true
+  - split: vertical
+    percentage: 20
+
+sidebar:
+  width: "20%"
+  layout: tiles
