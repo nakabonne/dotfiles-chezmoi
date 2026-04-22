@@ -5,7 +5,7 @@ Dotfiles managed by [chezmoi](https://www.chezmoi.io/).
 ## Supported OS
 
 - macOS
-- Ubuntu (planned)
+- Debian / Ubuntu
 
 ## Prerequisites
 
@@ -30,8 +30,8 @@ chezmoi apply -v
 - This repository is the chezmoi source directory.
 - Files prefixed with `dot_` map to files in `$HOME`.
 - When you run `chezmoi apply`, it runs these:
-  - `run_once_before_bootstrap.sh.tmpl`: bootstraps package managers (`brew`, `mise`).
-  - `run_once_after_install.sh.tmpl`: installs configured tools via `mise install` and runs `brew bundle` when a `Brewfile` exists.
+  - `run_once_before_bootstrap.sh.tmpl`: bootstraps package managers (`brew` / `apt`, `mise`).
+  - `run_once_after_install.sh.tmpl`: installs configured tools via `mise install`, then runs `brew bundle` on macOS or installs the equivalent packages via `apt` (plus `starship` / `lazygit` installers) on Debian-based systems.
 
 ### Pull the latest change
 

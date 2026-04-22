@@ -12,6 +12,14 @@ run_step() {
   fi
 }
 
+sudo_cmd() {
+  if [[ "$(id -u)" -eq 0 ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
 apply_macos_settings() {
   # Native remap for current session: Caps Lock -> Left Control.
   run_step "Remapped Caps Lock to Control (native)" \
@@ -64,12 +72,56 @@ apply_macos_settings() {
   run_step "Reloaded SystemUIServer" killall SystemUIServer
 }
 
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -x /usr/local/bin/brew ]]; then
-  eval "$(/usr/local/bin/brew shellenv)"
+install_debian_packages() {
+  echo "[i] Installing packages via apt"
+  export DEBIAN_FRONTEND=noninteractive
+  sudo_cmd apt-get update
+  sudo_cmd apt-get install -y jq htop tmux neovim fzf
+
+  if ! command -v starship >/dev/null 2>&1; then
+    echo "[i] Installing starship"
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+  fi
+
+  if ! command -v lazygit >/dev/null 2>&1; then
+    echo "[i] Installing lazygit"
+    local lg_arch
+    case "$(uname -m)" in
+      x86_64) lg_arch="x86_64" ;;
+      aarch64|arm64) lg_arch="arm64" ;;
+      armv7l) lg_arch="armv6" ;;
+      *)
+        echo "[!] Unsupported architecture for lazygit: $(uname -m); skipping"
+        lg_arch=""
+        ;;
+    esac
+    if [[ -n "$lg_arch" ]]; then
+      local tmp_dir
+      tmp_dir="$(mktemp -d)"
+      if curl -fsSL \
+          "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_Linux_${lg_arch}.tar.gz" \
+          -o "$tmp_dir/lazygit.tar.gz" \
+        && tar -xzf "$tmp_dir/lazygit.tar.gz" -C "$tmp_dir" lazygit; then
+        sudo_cmd install -m 0755 "$tmp_dir/lazygit" /usr/local/bin/lazygit
+      else
+        echo "[!] lazygit install failed; continuing"
+      fi
+      rm -rf "$tmp_dir"
+    fi
+  fi
+}
+
+os="$(uname -s)"
+
+if [[ "$os" == "Darwin" ]]; then
+  if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
 fi
 
+# mise-managed runtimes work on any supported OS.
 if command -v mise >/dev/null 2>&1; then
   echo "[i] Installing tools from mise config"
   mise install
@@ -77,9 +129,15 @@ else
   echo "[i] mise is not installed; skipping mise install"
 fi
 
-if command -v brew >/dev/null 2>&1 && [[ -f "$HOME/.Brewfile" ]]; then
-  echo "[i] Installing Homebrew packages from Brewfile"
-  brew bundle -v --file "$HOME/.Brewfile"
+if [[ "$os" == "Darwin" ]]; then
+  if command -v brew >/dev/null 2>&1 && [[ -f "$HOME/.Brewfile" ]]; then
+    echo "[i] Installing Homebrew packages from Brewfile"
+    brew bundle -v --file "$HOME/.Brewfile"
+  fi
+elif [[ -r /etc/os-release ]] && grep -qiE 'ID(_LIKE)?=.*(debian|ubuntu)' /etc/os-release; then
+  install_debian_packages
+else
+  echo "[i] Skipping package install: unsupported OS ($os)"
 fi
 
 if [[ ! -d "$HOME/.enhancd" ]]; then
@@ -91,7 +149,7 @@ if [[ ! -d "$HOME/.enhancd" ]]; then
   fi
 fi
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
+if [[ "$os" == "Darwin" ]]; then
   echo "[i] Applying macOS system settings"
   apply_macos_settings
 else

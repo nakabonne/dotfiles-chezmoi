@@ -1,23 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "$(uname -s)" != "Darwin" ]]; then
-  echo "[i] Skipping bootstrap: currently tuned for macOS"
-  exit 0
-fi
+os="$(uname -s)"
 
-if ! command -v brew >/dev/null 2>&1; then
-  echo "[i] Installing Homebrew"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
+sudo_cmd() {
+  if [[ "$(id -u)" -eq 0 ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
 
-if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -x /usr/local/bin/brew ]]; then
-  eval "$(/usr/local/bin/brew shellenv)"
-fi
+bootstrap_darwin() {
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "[i] Installing Homebrew"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
 
-if ! command -v mise >/dev/null 2>&1; then
-  echo "[i] Installing mise"
-  brew install mise
+  if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+
+  if ! command -v mise >/dev/null 2>&1; then
+    echo "[i] Installing mise"
+    brew install mise
+  fi
+}
+
+bootstrap_debian() {
+  echo "[i] Bootstrapping Debian-based system"
+  export DEBIAN_FRONTEND=noninteractive
+  sudo_cmd apt-get update
+  sudo_cmd apt-get install -y ca-certificates curl git
+
+  if ! command -v mise >/dev/null 2>&1; then
+    echo "[i] Installing mise"
+    curl -fsSL https://mise.run | sh
+  fi
+}
+
+if [[ "$os" == "Darwin" ]]; then
+  bootstrap_darwin
+elif [[ -r /etc/os-release ]] && grep -qiE 'ID(_LIKE)?=.*(debian|ubuntu)' /etc/os-release; then
+  bootstrap_debian
+else
+  echo "[i] Skipping bootstrap: unsupported OS ($os)"
 fi
