@@ -27,6 +27,7 @@ alias pbc='pbgopy copy'
 alias pbp='pbgopy paste'
 alias pbcli='pbgopy paste | pbcopy'
 alias wm='workmux'
+alias claude-d='claude --dangerously-skip-permissions'
 
 # prompt
 function parse_git_branch {
