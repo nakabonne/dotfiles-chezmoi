@@ -9,9 +9,17 @@ Dotfiles managed by [chezmoi](https://www.chezmoi.io/).
 
 ## Prerequisites
 
-```
+macOS
+
+```sh
 brew update
 brew install chezmoi
+```
+
+Others
+
+```sh
+sh -c "$(curl -fsLS https://get.chezmoi.io)"
 ```
 
 ## Bootstrap
