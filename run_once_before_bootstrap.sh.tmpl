@@ -3,14 +3,6 @@ set -euo pipefail
 
 os="$(uname -s)"
 
-sudo_cmd() {
-  if [[ "$(id -u)" -eq 0 ]]; then
-    "$@"
-  else
-    sudo "$@"
-  fi
-}
-
 bootstrap_darwin() {
   if ! command -v brew >/dev/null 2>&1; then
     echo "[i] Installing Homebrew"
@@ -30,13 +22,20 @@ bootstrap_darwin() {
 }
 
 bootstrap_debian() {
-  echo "[i] Bootstrapping Debian-based system"
-  export DEBIAN_FRONTEND=noninteractive
-  sudo_cmd apt-get update
-  sudo_cmd apt-get install -y ca-certificates curl git
+  echo "[i] Bootstrapping Debian-based system (no sudo)"
+
+  local missing=()
+  for bin in curl git; do
+    command -v "$bin" >/dev/null 2>&1 || missing+=("$bin")
+  done
+  if (( ${#missing[@]} > 0 )); then
+    echo "[!] Required commands missing: ${missing[*]}"
+    echo "[!] Install them (e.g. via your admin) and re-run chezmoi apply."
+    exit 1
+  fi
 
   if ! command -v mise >/dev/null 2>&1; then
-    echo "[i] Installing mise"
+    echo "[i] Installing mise to \$HOME"
     curl -fsSL https://mise.run | sh
   fi
 }

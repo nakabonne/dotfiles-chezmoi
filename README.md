@@ -30,8 +30,8 @@ chezmoi apply -v
 - This repository is the chezmoi source directory.
 - Files prefixed with `dot_` map to files in `$HOME`.
 - When you run `chezmoi apply`, it runs these:
-  - `run_once_before_bootstrap.sh.tmpl`: bootstraps package managers (`brew` / `apt`, `mise`).
-  - `run_once_after_install.sh.tmpl`: installs configured tools via `mise install`, then runs `brew bundle` on macOS or installs the equivalent packages via `apt` (plus `starship` / `lazygit` installers) on Debian-based systems.
+  - `run_once_before_bootstrap.sh.tmpl`: bootstraps package managers (`brew` on macOS, `mise` on both platforms).
+  - `run_once_after_install.sh.tmpl`: installs configured tools via `mise install`, then runs `brew bundle` on macOS. On Debian-based systems everything is installed without sudo: CLI tools (`jq`, `neovim`, `fzf`, `starship`, `lazygit`) come from mise, and `tmux` is installed as an extracted AppImage under `$HOME/.local`.
 
 ### Pull the latest change
 
@@ -71,7 +71,7 @@ git push
 
 ### Tool management
 
-Runtime versions are defined in: `dot_config/mise/config.toml`.
+Runtime versions are defined in: `dot_config/mise/config.toml.tmpl`. On Linux this file also declares the CLI tools that `brew` manages on macOS.
 
 After updates, run:
 

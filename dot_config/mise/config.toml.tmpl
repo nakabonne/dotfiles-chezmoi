@@ -1,0 +1,15 @@
+[tools]
+node = "lts"
+python = "3"
+go = "1"
+terraform = "1.14"
+{{- if ne .chezmoi.os "darwin" }}
+
+# On Linux these CLI tools are managed by mise so no sudo is required.
+# macOS installs the same set via Homebrew (see dot_Brewfile).
+jq = "latest"
+neovim = "latest"
+fzf = "latest"
+starship = "latest"
+lazygit = "latest"
+{{- end }}

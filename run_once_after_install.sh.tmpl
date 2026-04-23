@@ -12,14 +12,6 @@ run_step() {
   fi
 }
 
-sudo_cmd() {
-  if [[ "$(id -u)" -eq 0 ]]; then
-    "$@"
-  else
-    sudo "$@"
-  fi
-}
-
 apply_macos_settings() {
   # Native remap for current session: Caps Lock -> Left Control.
   run_step "Remapped Caps Lock to Control (native)" \
@@ -72,42 +64,52 @@ apply_macos_settings() {
   run_step "Reloaded SystemUIServer" killall SystemUIServer
 }
 
-install_debian_packages() {
-  echo "[i] Installing packages via apt"
-  export DEBIAN_FRONTEND=noninteractive
-  sudo_cmd apt-get update
-  sudo_cmd apt-get install -y jq htop tmux neovim fzf
-
-  if ! command -v starship >/dev/null 2>&1; then
-    echo "[i] Installing starship"
-    curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+install_tmux_appimage() {
+  if command -v tmux >/dev/null 2>&1; then
+    return
   fi
 
-  if ! command -v lazygit >/dev/null 2>&1; then
-    echo "[i] Installing lazygit"
-    local lg_arch
-    case "$(uname -m)" in
-      x86_64) lg_arch="x86_64" ;;
-      aarch64|arm64) lg_arch="arm64" ;;
-      armv7l) lg_arch="armv6" ;;
-      *)
-        echo "[!] Unsupported architecture for lazygit: $(uname -m); skipping"
-        lg_arch=""
-        ;;
-    esac
-    if [[ -n "$lg_arch" ]]; then
-      local tmp_dir
-      tmp_dir="$(mktemp -d)"
-      if curl -fsSL \
-          "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_Linux_${lg_arch}.tar.gz" \
-          -o "$tmp_dir/lazygit.tar.gz" \
-        && tar -xzf "$tmp_dir/lazygit.tar.gz" -C "$tmp_dir" lazygit; then
-        sudo_cmd install -m 0755 "$tmp_dir/lazygit" /usr/local/bin/lazygit
-      else
-        echo "[!] lazygit install failed; continuing"
-      fi
-      rm -rf "$tmp_dir"
-    fi
+  local arch_suffix
+  case "$(uname -m)" in
+    x86_64) arch_suffix="x86_64" ;;
+    aarch64|arm64) arch_suffix="arm64" ;;
+    *)
+      echo "[!] tmux AppImage not available for $(uname -m); skipping"
+      return
+      ;;
+  esac
+
+  local bin_dir="$HOME/.local/bin"
+  local app_dir="$HOME/.local/share/tmux-appimage"
+  mkdir -p "$bin_dir" "$app_dir"
+
+  local url="https://github.com/nelsonenzo/tmux-appimage/releases/latest/download/tmux.appimage"
+  local appimage="$app_dir/tmux.appimage"
+
+  echo "[i] Installing tmux (AppImage) to $bin_dir/tmux"
+  if ! curl -fsSL "$url" -o "$appimage"; then
+    echo "[!] tmux AppImage download failed; skipping"
+    return
+  fi
+  chmod +x "$appimage"
+
+  # Extract to avoid the FUSE/libfuse2 runtime requirement.
+  rm -rf "$app_dir/squashfs-root"
+  if ! (cd "$app_dir" && "$appimage" --appimage-extract >/dev/null); then
+    echo "[!] tmux AppImage extraction failed; skipping"
+    return
+  fi
+
+  ln -sfn "$app_dir/squashfs-root/AppRun" "$bin_dir/tmux"
+}
+
+install_debian_tools() {
+  # Most CLI tools (jq, neovim, fzf, starship, lazygit) are installed via mise
+  # using the Linux section of dot_config/mise/config.toml.tmpl.
+  install_tmux_appimage
+
+  if ! command -v htop >/dev/null 2>&1; then
+    echo "[!] htop has no sudo-less install path; skipping (ask an admin to 'apt install htop' if needed)"
   fi
 }
 
@@ -135,7 +137,7 @@ if [[ "$os" == "Darwin" ]]; then
     brew bundle -v --file "$HOME/.Brewfile"
   fi
 elif [[ -r /etc/os-release ]] && grep -qiE 'ID(_LIKE)?=.*(debian|ubuntu)' /etc/os-release; then
-  install_debian_packages
+  install_debian_tools
 else
   echo "[i] Skipping package install: unsupported OS ($os)"
 fi
