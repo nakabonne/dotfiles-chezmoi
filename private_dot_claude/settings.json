@@ -38,7 +38,8 @@
       "Bash(docker system prune *)",
       "Bash(kubectl delete *)",
       "Bash(terraform destroy *)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "model": "opus[1m]",
   "hooks": {
